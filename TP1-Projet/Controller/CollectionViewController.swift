@@ -8,19 +8,34 @@
 
 import UIKit
 
-private let reuseIdentifier = "Cell"
+
 
 class CollectionViewController: UICollectionViewController {
-
+    private let reuseIdentifier = "Cell"
+    var genre: [Genre] = []
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
-
+        let movieManager: MovieManager = MovieManager()
+        
+        movieManager.genreRequest { data in
+            guard let data = data else { return }
+            if let listGenres = try? JSONDecoder().decode(Genre.self, from: data) {
+                self.genre = [listGenres]
+                
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+            }
+        }
         // Register cell classes
         self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
+        
         // Do any additional setup after loading the view.
     }
 
@@ -38,20 +53,22 @@ class CollectionViewController: UICollectionViewController {
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 1
+        return 2
     }
 
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
-        return 10
+        
+        return genre.count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
     
         // Configure the cell
-        cell.backgroundColor = UIColor.red
+        let tabGenre = genre[indexPath.item]
+        
         return cell
     }
 
